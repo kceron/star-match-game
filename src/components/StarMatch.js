@@ -1,5 +1,5 @@
 import '../App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PlayNumber from './PlayNumber';
 import StarsDisplay from './StarsDisplay';
 import PlayAgain from './PlayAgain';
@@ -46,9 +46,24 @@ const StarMatch = () => {
   const [stars, setStars] = useState(utils.random(1, 9));
   const [availableNums, setAvailableNums] = useState(utils.range(1, 9));
   const [candidateNums, setCandidateNums] = useState([]);
+  const [secondsLeft, setSecondsLeft] = useState(10);
+
+  useEffect(() => {
+    if (secondsLeft > 0 && availableNums.length > 0){
+      const timerId = setTimeout(() => {
+        setSecondsLeft(secondsLeft - 1);
+      }, 1000);
+      // CLEAN UP EFFECT. The setTimeout function gives back a timerId which we can pass to clearTimeout to clean it up/remove the timer. ALWAYS CLEAN UP AFTER SIDE EFFECTS. If we introduce an effect, we should always return a function that cleans it up.
+      return () => clearTimeout(timerId);
+    }
+
+    return () => {}
+  });
 
   const candidatesAreWrong = utils.sum(candidateNums) > stars;
-  const gameIsDone = availableNums.length === 0;
+  const gameStatus = availableNums.length === 0 
+    ? 'won'
+    : secondsLeft === 0 ? 'lost' : 'active'
 
   const resetGame = () => {
     setStars(utils.random(1, 9));
@@ -67,7 +82,7 @@ const StarMatch = () => {
   };
 
   const onNumberClick = (number, currentStatus) => {
-    if (currentStatus === 'used'){
+    if (gameStatus !== 'active' || currentStatus === 'used'){
       return;
     }
     const newCandidateNums = 
@@ -86,6 +101,7 @@ const StarMatch = () => {
       setCandidateNums([]);
     }
   }
+
     return (
       <div className="game">
         <div className="help">
@@ -93,8 +109,8 @@ const StarMatch = () => {
         </div>
         <div className="body">
           <div className="left">
-            {gameIsDone ? (
-              <PlayAgain onClick={resetGame}/>
+            {gameStatus !== 'active' ? (
+              <PlayAgain onClick={resetGame} gameStatus={gameStatus}/>
             ) : (
               <StarsDisplay count={stars} utils={utils}/>
             )}
@@ -112,7 +128,7 @@ const StarMatch = () => {
 
           </div>
         </div>
-        <div className="timer">Time Remaining: 10</div>
+        <div className="timer">Time Remaining: {secondsLeft}</div>
       </div>
     );
   };
