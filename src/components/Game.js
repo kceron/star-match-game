@@ -92,12 +92,6 @@ const Game = (props) => {
     ? 'won'
     : secondsLeft === 0 ? 'lost' : 'active'
 
-  // const resetGame = () => {
-  //   setStars(utils.random(1, 9));
-  //   setAvailableNums(utils.range(1, 9));
-  //   setCandidateNums([]);
-  // };
-
   const numberStatus = (number) => {
     if (!availableNums.includes(number)){
       return 'used';
