@@ -2,8 +2,7 @@ import '../App.css';
 import React, { useState } from 'react';
 import PlayNumber from './PlayNumber';
 import StarsDisplay from './StarsDisplay';
-
-const StarMatch = () => {
+import PlayAgain from './PlayAgain';
 
   // Color Theme
   const colors = {
@@ -12,7 +11,7 @@ const StarMatch = () => {
     wrong: 'lightcoral',
     candidate: 'deepskyblue',
   };
-  
+
   // Math science
   const utils = {
     // Sum an array
@@ -43,11 +42,19 @@ const StarMatch = () => {
     },
   };
 
+const StarMatch = () => {
   const [stars, setStars] = useState(utils.random(1, 9));
   const [availableNums, setAvailableNums] = useState(utils.range(1, 9));
   const [candidateNums, setCandidateNums] = useState([]);
 
   const candidatesAreWrong = utils.sum(candidateNums) > stars;
+  const gameIsDone = availableNums.length === 0;
+
+  const resetGame = () => {
+    setStars(utils.random(1, 9));
+    setAvailableNums(utils.range(1, 9));
+    setCandidateNums([]);
+  };
 
   const numberStatus = (number) => {
     if (!availableNums.includes(number)){
@@ -74,8 +81,7 @@ const StarMatch = () => {
       const newAvailableNums = availableNums.filter(
         n => !newCandidateNums.includes(n)
       )
-      // redraw stars from whats available
-      setStars(utils.randomSumIn(newAvailableNums, 9));
+      setStars(utils.randomSumIn(newAvailableNums, 9)); // redraw stars from whats avail
       setAvailableNums(newAvailableNums);
       setCandidateNums([]);
     }
@@ -87,7 +93,11 @@ const StarMatch = () => {
         </div>
         <div className="body">
           <div className="left">
-            <StarsDisplay count={stars} utils={utils}/>
+            {gameIsDone ? (
+              <PlayAgain onClick={resetGame}/>
+            ) : (
+              <StarsDisplay count={stars} utils={utils}/>
+            )}
           </div>
           <div className="right">
             {utils.range(1, 9).map(number => 
